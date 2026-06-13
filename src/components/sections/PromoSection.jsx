@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Gift, ArrowRight, Sparkles, Trash2, Plus } from 'lucide-react';
+import { Clock, Gift, ArrowRight, Sparkles, Trash2, Plus, X } from 'lucide-react';
 import promoData from '../../data/promo.json';
 import useContent from '../../hooks/useContent';
 import useSettings from '../../hooks/useSettings';
 import InlineEditor, { InlineImage } from '../admin/InlineEditor';
-import ItemModal from '../admin/ItemModal';
+import PromoModal from '../admin/PromoModal';
 import { useAuth } from '../../context/AuthContext';
 import { useCountdown } from '../../hooks/useCountdown';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
@@ -35,16 +35,6 @@ function CountdownTimer({ targetDate }) {
     </div>
   );
 }
-
-const promoFields = [
-  { key: 'judul', label: 'Judul Promo' },
-  { key: 'deskripsi', label: 'Deskripsi', type: 'textarea' },
-  { key: 'diskon', label: 'Diskon' },
-  { key: 'kode', label: 'Kode Promo' },
-  { key: 'gambar', label: 'Gambar', type: 'gambar' },
-  { key: 'validUntil', label: 'Berlaku Hingga (YYYY-MM-DD)' },
-  { key: 'warna', label: 'Warna Background' },
-];
 
 export default function PromoSection() {
   const [ref, isVisible] = useScrollAnimation();
@@ -197,8 +187,7 @@ export default function PromoSection() {
 
       <AnimatePresence>
         {showModal && (
-          <ItemModal
-            fields={promoFields}
+          <PromoModal
             onSave={(form) => create(form)}
             onClose={() => setShowModal(false)}
           />
