@@ -142,7 +142,7 @@ export default function Testimoni() {
           </p>
         </motion.div>
 
-        <div className="max-w-2xl xl:max-w-3xl mx-auto relative">
+        <div className="max-w-4xl mx-auto relative">
           <div className="min-h-[280px] flex items-center">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
@@ -155,7 +155,7 @@ export default function Testimoni() {
                 transition={{ duration: 0.4, ease: 'easeInOut' }}
                 className="w-full"
               >
-                <div className="relative p-6 sm:p-10 bg-white dark:bg-gray-900 rounded-2xl premium-shadow text-center">
+                <div className="relative bg-white dark:bg-gray-900 rounded-2xl premium-shadow overflow-hidden">
                   {editMode && (
                     <>
                       <div className="absolute top-3 left-3 z-10">
@@ -175,37 +175,44 @@ export default function Testimoni() {
                       </div>
                     </>
                   )}
-                  <Quote size={40} className="mx-auto text-honda-red/20 mb-4" />
-                  <StarRating rating={t.rating} size={20} />
-                  <RichEditor
-                    value={t.komentar}
-                    onChange={(val) => update(t.id, { komentar: val })}
-                    className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed mt-5 mb-6 italic"
-                  />
-                  <div className="flex items-center justify-center gap-4">
-                    <img
-                      src={t.foto}
-                      alt={t.nama}
-                      className="w-12 h-12 rounded-full object-cover ring-2 ring-honda-red/20"
-                    />
-                    <div className="text-left">
-                      <InlineEditor
-                        value={t.nama}
-                        onSave={(val) => update(t.id, { nama: val })}
-                        className="font-bold text-sm block"
-                        tag="p"
+                  <div className="grid md:grid-cols-12">
+                    <div className="md:col-span-4 relative h-56 md:h-auto overflow-hidden">
+                      <img
+                        src={t.foto}
+                        alt={t.nama}
+                        className="w-full h-full object-cover"
                       />
-                      <p className="text-xs text-gray-400">{t.mobil}</p>
+                      <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/40 to-transparent" />
+                    </div>
+                    <div className="md:col-span-8 p-6 sm:p-8 xl:p-10 flex flex-col justify-center">
+                      <Quote size={36} className="text-honda-red/20 mb-3" />
+                      <StarRating rating={t.rating} size={18} />
+                      <RichEditor
+                        value={t.komentar}
+                        onChange={(val) => update(t.id, { komentar: val })}
+                        className="text-gray-600 dark:text-gray-300 text-base sm:text-lg leading-relaxed mt-4 mb-5 italic"
+                      />
+                      <div className="flex items-center gap-3">
+                        <div className="text-left">
+                          <InlineEditor
+                            value={t.nama}
+                            onSave={(val) => update(t.id, { nama: val })}
+                            className="font-bold text-sm block"
+                            tag="p"
+                          />
+                          <p className="text-xs text-gray-400">{t.mobil}</p>
+                        </div>
+                      </div>
+                      {editMode && (
+                        <div className="mt-3">
+                          <UploadWidget
+                            onUpload={(url) => update(t.id, { foto: url })}
+                            currentUrl={t.foto}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
-                  {editMode && (
-                    <div className="mt-3 flex justify-center">
-                      <UploadWidget
-                        onUpload={(url) => update(t.id, { foto: url })}
-                        currentUrl={t.foto}
-                      />
-                    </div>
-                  )}
                 </div>
               </motion.div>
             </AnimatePresence>
