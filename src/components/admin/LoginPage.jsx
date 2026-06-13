@@ -59,7 +59,7 @@ export default function LoginPage() {
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700
                            rounded-xl focus:outline-none focus:ring-2 focus:ring-honda-red/50 transition-all"
-                placeholder="admin"
+                placeholder="Masukkan username"
               />
             </div>
 
@@ -72,7 +72,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 pr-12 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700
                              rounded-xl focus:outline-none focus:ring-2 focus:ring-honda-red/50 transition-all"
-                  placeholder="honda123"
+                  placeholder="Masukkan password"
                 />
                 <button
                   type="button"
