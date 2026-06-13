@@ -1,0 +1,11 @@
+[
+  { "id": 1, "judul": "Showroom Utama", "kategori": "Showroom", "gambar": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80" },
+  { "id": 2, "judul": "Area Display Unit", "kategori": "Display", "gambar": "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80" },
+  { "id": 3, "judul": "Serah Terima Kendaraan", "kategori": "Serah Terima", "gambar": "https://images.unsplash.com/photo-1550355291-bbee04a92027?w=800&q=80" },
+  { "id": 4, "judul": "Bengkel Resmi", "kategori": "Bengkel", "gambar": "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=800&q=80" },
+  { "id": 5, "judul": "Ruang Tunggu Premium", "kategori": "Showroom", "gambar": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80" },
+  { "id": 6, "judul": "Area Test Drive", "kategori": "Test Drive", "gambar": "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&q=80" },
+  { "id": 7, "judul": "Tim Sales Profesional", "kategori": "Tim", "gambar": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80" },
+  { "id": 8, "judul": "Interior Showroom", "kategori": "Showroom", "gambar": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80" },
+  { "id": 9, "judul": "Area Penjualan", "kategori": "Display", "gambar": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" }
+]

@@ -1,0 +1,8 @@
+[
+  { "id": 1, "icon": "Building2", "title": "Dealer Resmi", "desc": "Authorized dealer resmi Honda dengan standar layanan internasional." },
+  { "id": 2, "icon": "ShieldCheck", "title": "Garansi Resmi", "desc": "Garansi pabrik resmi hingga 5 tahun untuk ketenangan berkendara." },
+  { "id": 3, "icon": "Wallet", "title": "Kredit Mudah", "desc": "Proses pengajuan kredit cepat dengan bunga kompetitif dan DP ringan." },
+  { "id": 4, "icon": "RefreshCw", "title": "Trade In", "desc": "Tukar tambah mobil lama dengan penilaian harga terbaik dan transparan." },
+  { "id": 5, "icon": "Wrench", "title": "Servis Berkala", "desc": "Layanan servis resmi dengan teknisi ahli dan peralatan modern." },
+  { "id": 6, "icon": "Car", "title": "Test Drive Gratis", "desc": "Rasakan pengalaman berkendara langsung sebelum memutuskan membeli." }
+]

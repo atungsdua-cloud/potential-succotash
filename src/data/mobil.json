@@ -1,0 +1,152 @@
+[
+  {
+    "id": 1,
+    "nama": "Honda Brio",
+    "kategori": "Hatchback",
+    "harga": 205800000,
+    "transmisi": "Manual & CVT",
+    "kapasitas": 5,
+    "mesin": "1.2L i-VTEC",
+    "foto": "https://images.unsplash.com/photo-1546614042-7df3c24c9e5d?w=600&q=80",
+    "warna": ["Merah", "Putih", "Hitam", "Silver"],
+    "fitur": ["AC Digital", "Dual SRS Airbag", "ABS+EBD", "Power Window"],
+    "deskripsi": "Mobil perkotaan yang kompak, lincah, dan hemat bahan bakar.",
+    "tipe": [
+      { "nama": "New Brio Satya S CVT", "harga": 205800000 },
+      { "nama": "New Brio Satya E CVT", "harga": 231900000 },
+      { "nama": "New Brio RS CVT", "harga": 288200000 },
+      { "nama": "Brio RS Two Tone CVT", "harga": 290700000 }
+    ]
+  },
+  {
+    "id": 2,
+    "nama": "Honda WR-V",
+    "kategori": "SUV",
+    "harga": 304400000,
+    "transmisi": "CVT",
+    "kapasitas": 5,
+    "mesin": "1.5L i-VTEC",
+    "foto": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=80",
+    "warna": ["Merah", "Putih", "Hitam", "Kuning"],
+    "fitur": ["Honda Sensing", "Kunci Pintar", "Layar 7\"", "Kursi Kulit"],
+    "deskripsi": "SUV kompak dengan gaya sporty dan performa tangguh.",
+    "tipe": [
+      { "nama": "WR-V E CVT", "harga": 304400000 },
+      { "nama": "WR-V RS CVT", "harga": 316900000 },
+      { "nama": "WR-V RS Two Tone CVT", "harga": 319400000 },
+      { "nama": "WR-V RS Honda Sensing CVT", "harga": 340900000 },
+      { "nama": "WR-V RS Honda Sensing Two Tone CVT", "harga": 343400000 }
+    ]
+  },
+  {
+    "id": 3,
+    "nama": "Honda HR-V",
+    "kategori": "SUV",
+    "harga": 401700000,
+    "transmisi": "CVT",
+    "kapasitas": 5,
+    "mesin": "1.5L i-VTEC / e:HEV",
+    "foto": "https://images.unsplash.com/photo-1581540222194-0def2dda95b8?w=600&q=80",
+    "warna": ["Merah", "Putih", "Hitam", "Biru"],
+    "fitur": ["Honda Sensing", "Sunroof", "Layar 8\"", "Kursi Elektrik"],
+    "deskripsi": "SUV premium dengan desain futuristik dan teknologi canggih.",
+    "tipe": [
+      { "nama": "New HR-V 1.5 E CVT", "harga": 401700000 },
+      { "nama": "New HR-V 1.5 E Two Tone CVT", "harga": 404200000 },
+      { "nama": "New HR-V 1.5 E+ CVT", "harga": 424500000 },
+      { "nama": "New HR-V 1.5 E+ Two Tone CVT", "harga": 427200000 },
+      { "nama": "New HR-V 1.5 e:HEV E CVT", "harga": 464300000 },
+      { "nama": "New HR-V 1.5 e:HEV Two Tone E CVT", "harga": 466800000 },
+      { "nama": "New HR-V 1.5 e:HEV Modulo E CVT", "harga": 476000000 },
+      { "nama": "New HR-V 1.5 e:HEV Modulo Two Tone E CVT", "harga": 478500000 },
+      { "nama": "New HR-V 1.5 RS e:HEV E CVT", "harga": 504300000 },
+      { "nama": "New HR-V 1.5 RS e:HEV Two Tone E CVT", "harga": 506800000 }
+    ]
+  },
+  {
+    "id": 4,
+    "nama": "Honda BR-V",
+    "kategori": "SUV",
+    "harga": 329800000,
+    "transmisi": "Manual & CVT",
+    "kapasitas": 7,
+    "mesin": "1.5L i-VTEC",
+    "foto": "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=80",
+    "warna": ["Merah", "Putih", "Hitam", "Abu-abu"],
+    "fitur": ["AC Dual Blower", "Layar 7\"", "Kursi Lipat", "Honda Sensing"],
+    "deskripsi": "SUV 7-seater ideal untuk keluarga dengan kenyamanan maksimal.",
+    "tipe": [
+      { "nama": "BR-V S MT", "harga": 329800000 },
+      { "nama": "BR-V E MT", "harga": 345800000 },
+      { "nama": "BR-V N7X Edition CVT", "harga": 358600000 },
+      { "nama": "BR-V Prestige N7X Edition CVT", "harga": 383900000 },
+      { "nama": "BR-V Honda Sensing N7X CVT", "harga": 404300000 }
+    ]
+  },
+  {
+    "id": 5,
+    "nama": "Honda City Hatchback",
+    "kategori": "Hatchback",
+    "harga": 399500000,
+    "transmisi": "CVT",
+    "kapasitas": 5,
+    "mesin": "1.5L i-VTEC",
+    "foto": "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=80",
+    "warna": ["Merah", "Putih", "Hitam", "Silver"],
+    "fitur": ["Honda Connect", "Layar 8\"", "Kursi Kulit", "Kunci Pintar"],
+    "deskripsi": "Hatchback stylish dengan fitur premium dan kenyamanan berkendara.",
+    "tipe": [
+      { "nama": "City Hatchback RS Honda Sensing MT", "harga": 399500000 },
+      { "nama": "City Hatchback RS Honda Sensing Two Tone MT", "harga": 402000000 }
+    ]
+  },
+  {
+    "id": 6,
+    "nama": "Honda Civic RS",
+    "kategori": "Sedan",
+    "harga": 649800000,
+    "transmisi": "e:HEV CVT",
+    "kapasitas": 5,
+    "mesin": "2.0L e:HEV Hybrid",
+    "foto": "https://images.unsplash.com/photo-1590362891991-f776e747a588?w=600&q=80",
+    "warna": ["Merah", "Putih", "Hitam", "Biru"],
+    "fitur": ["Honda Sensing", "Sunroof", "Layar 9\"", "Bose Audio", "Kursi Elektrik"],
+    "deskripsi": "Sedan sporty dengan performa turbo dan desain agresif.",
+    "tipe": [
+      { "nama": "New Civic RS e:HEV CVT", "harga": 649800000 }
+    ]
+  },
+  {
+    "id": 7,
+    "nama": "Honda CR-V",
+    "kategori": "SUV",
+    "harga": 797300000,
+    "transmisi": "e:HEV CVT",
+    "kapasitas": 7,
+    "mesin": "2.0L e:HEV Hybrid",
+    "foto": "https://images.unsplash.com/photo-1568844293986-8d0400bd4745?w=600&q=80",
+    "warna": ["Merah", "Putih", "Hitam", "Silver"],
+    "fitur": ["Honda Sensing", "Sunroof", "Layar 8\"", "Kursi Kulit", "AC Dual Blower"],
+    "deskripsi": "SUV keluarga premium dengan kabin luas dan teknologi keselamatan terkini.",
+    "tipe": [
+      { "nama": "All New CR-V 2.0 e:HEV Hybrid CVT", "harga": 797300000 },
+      { "nama": "All New CR-V 2.0 RS e:HEV Hybrid CVT", "harga": 849900000 }
+    ]
+  },
+  {
+    "id": 8,
+    "nama": "Honda Accord",
+    "kategori": "Sedan",
+    "harga": 999000000,
+    "transmisi": "e:HEV CVT",
+    "kapasitas": 5,
+    "mesin": "2.0L e:HEV Hybrid",
+    "foto": "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=600&q=80",
+    "warna": ["Merah", "Putih", "Hitam", "Silver"],
+    "fitur": ["Honda Sensing", "Sunroof", "Layar 9\"", "Bose Audio", "Kursi Elektrik", "Kursi Pemanas"],
+    "deskripsi": "Sedan eksekutif dengan kemewahan dan kenyamanan terbaik.",
+    "tipe": [
+      { "nama": "All New Accord 2.0 RS e:HEV e CVT", "harga": 999000000 }
+    ]
+  }
+]

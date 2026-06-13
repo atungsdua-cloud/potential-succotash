@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "judul": "DP Ringan Mulai 10%",
+    "deskripsi": "Dapatkan DP ringan hanya 10% untuk semua tipe Honda. Cicilan mulai dari Rp 3 jutaan.",
+    "diskon": "10%",
+    "kode": "HONDA10",
+    "gambar": "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=80",
+    "validUntil": "2026-07-31",
+    "warna": "bg-gradient-to-br from-honda-red to-orange-600"
+  },
+  {
+    "id": 2,
+    "judul": "Trade In Bonus Rp 5 Juta",
+    "deskripsi": "Tukar tambah mobil lama Anda dan dapatkan bonus hingga Rp 5 juta untuk pembelian mobil baru.",
+    "diskon": "Rp 5 Juta",
+    "kode": "TRADEIN5",
+    "gambar": "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&q=80",
+    "validUntil": "2026-08-15",
+    "warna": "bg-gradient-to-br from-blue-600 to-purple-600"
+  },
+  {
+    "id": 3,
+    "judul": "Gratis Servis 3 Tahun",
+    "deskripsi": "Nikmati gratis biaya jasa servis selama 3 tahun atau 30.000 km untuk pembelian bulan ini.",
+    "diskon": "Gratis",
+    "kode": "SERVIS3",
+    "gambar": "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=600&q=80",
+    "validUntil": "2026-09-01",
+    "warna": "bg-gradient-to-br from-emerald-600 to-teal-600"
+  }
+]

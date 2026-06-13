@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "nama": "Budi Santoso",
+    "rating": 5,
+    "komentar": "Pelayanan sangat memuaskan! Proses pembelian cepat dan staf sangat membantu. Honda CR-V baru saya luar biasa!",
+    "foto": "https://i.pravatar.cc/150?img=11",
+    "mobil": "Honda CR-V",
+    "tanggal": "2026-05-15"
+  },
+  {
+    "id": 2,
+    "nama": "Siti Rahmawati",
+    "rating": 5,
+    "komentar": "Pengalaman test drive sangat menyenangkan. Salesnya ramah dan profesional. Akhirnya saya memilih Honda HR-V.",
+    "foto": "https://i.pravatar.cc/150?img=5",
+    "mobil": "Honda HR-V",
+    "tanggal": "2026-05-20"
+  },
+  {
+    "id": 3,
+    "nama": "Ahmad Fauzi",
+    "rating": 4,
+    "komentar": "Proses kredit cepat dan mudah. DP ringan, cicilan terjangkau. Rekomendasi untuk yang mau beli mobil baru.",
+    "foto": "https://i.pravatar.cc/150?img=12",
+    "mobil": "Honda Brio",
+    "tanggal": "2026-06-01"
+  },
+  {
+    "id": 4,
+    "nama": "Dewi Lestari",
+    "rating": 5,
+    "komentar": "Saya melakukan trade in mobil lama dan prosesnya sangat transparan. Harga appraisal sesuai ekspektasi.",
+    "foto": "https://i.pravatar.cc/150?img=9",
+    "mobil": "Honda Civic RS",
+    "tanggal": "2026-06-05"
+  },
+  {
+    "id": 5,
+    "nama": "Rudi Hermawan",
+    "rating": 5,
+    "komentar": "Showroomnya mewah, pelayanan bintang 5. Honda Accord baru saya benar-benar impian jadi kenyataan.",
+    "foto": "https://i.pravatar.cc/150?img=33",
+    "mobil": "Honda Accord",
+    "tanggal": "2026-06-08"
+  },
+  {
+    "id": 6,
+    "nama": "Maya Indah",
+    "rating": 4,
+    "komentar": "Layanan purna jual yang baik. Servis rutin selalu diingatkan oleh tim Honda. Sangat merekomendasikan!",
+    "foto": "https://i.pravatar.cc/150?img=23",
+    "mobil": "Honda BR-V",
+    "tanggal": "2026-06-10"
+  }
+]

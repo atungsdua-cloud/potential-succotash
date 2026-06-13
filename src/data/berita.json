@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "judul": "Honda Luncurkan All New CR-V 2026 dengan Teknologi Hybrid Terbaru",
+    "kategori": "Berita",
+    "tanggal": "2026-06-10",
+    "gambar": "https://images.unsplash.com/photo-1568844293986-8d0400bd4745?w=800&q=80",
+    "excerpt": "Honda resmi meluncurkan generasi terbaru CR-V dengan sistem hybrid e:PHEV yang lebih efisien."
+  },
+  {
+    "id": 2,
+    "judul": "Tips Perawatan Mobil Honda Agar Tetap Prima di Musim Hujan",
+    "kategori": "Tips",
+    "tanggal": "2026-06-08",
+    "gambar": "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=800&q=80",
+    "excerpt": "Simak tips lengkap merawat mobil Honda Anda agar tetap dalam kondisi terbaik saat musim hujan."
+  },
+  {
+    "id": 3,
+    "judul": "Honda Civic RS Borong Penghargaan Mobil Terbaik 2026",
+    "kategori": "Prestasi",
+    "tanggal": "2026-06-05",
+    "gambar": "https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&q=80",
+    "excerpt": "Honda Civic RS berhasil meraih penghargaan sebagai mobil sedan terbaik di ajang otomotif bergengsi."
+  },
+  {
+    "id": 4,
+    "judul": "Program DP 0% Honda Kembali Hadir, Kesempatan Terbatas!",
+    "kategori": "Promo",
+    "tanggal": "2026-06-01",
+    "gambar": "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80",
+    "excerpt": "Program spesial DP 0% kembali hadir untuk pembelian mobil Honda pilihan Anda. Periode terbatas!"
+  }
+]
