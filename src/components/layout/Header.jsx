@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, MessageCircle, Settings2 } from 'lucide-react';
+import { Menu, X, ChevronDown, MessageCircle, Settings2, LogIn } from 'lucide-react';
 import ThemeToggle from '../ui/ThemeToggle';
 
 import useSettings from '../../hooks/useSettings';
@@ -28,7 +28,7 @@ export default function Header() {
   const [activeSection, setActiveSection] = useState('');
   const [showNavEditor, setShowNavEditor] = useState(false);
   const dropdownRef = useRef(null);
-  const { user, editMode } = useAuth();
+  const { user, editMode, setShowLogin } = useAuth();
   const toast = useToast();
   const [s, update] = useSettings({
     logo_initial: 'H',
@@ -204,6 +204,18 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2.5">
+            {!user && (
+              <button
+                onClick={() => setShowLogin(true)}
+                className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                  scrolled
+                    ? 'text-gray-600 dark:text-gray-300 hover:text-honda-red hover:bg-gray-100 dark:hover:bg-gray-800'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <LogIn size={16} /> Login
+              </button>
+            )}
             <ThemeToggle />
             <a
               href={`https://wa.me/${s.contact_whatsapp?.replace(/[^0-9]/g, '') || '6281234567890'}`}

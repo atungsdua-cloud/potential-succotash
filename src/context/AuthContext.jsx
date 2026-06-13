@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(getStoredUser);
   const [editMode, setEditMode] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, editMode, setEditMode, login, logout, loading, showDashboard, setShowDashboard }}>
+    <AuthContext.Provider value={{ user, editMode, setEditMode, login, logout, loading, showDashboard, setShowDashboard, showLogin, setShowLogin }}>
       {children}
     </AuthContext.Provider>
   );

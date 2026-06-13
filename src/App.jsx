@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import Header from './components/layout/Header';
 import AdminBar from './components/admin/AdminBar';
-import AdminLogin from './components/admin/AdminLogin';
+import LoginPage from './components/admin/LoginPage';
 import AdminDashboard from './components/admin/AdminDashboard';
 import Hero from './components/sections/Hero';
 import ProductGrid from './components/sections/ProductGrid';
@@ -20,7 +20,7 @@ import Footer from './components/layout/Footer';
 import { FloatingWhatsApp, FloatingCallCenter, BackToTop } from './components/layout/FloatingContact';
 
 function AppContent() {
-  const { login, showDashboard } = useAuth();
+  const { showDashboard, showLogin } = useAuth();
 
   if (showDashboard) {
     return (
@@ -31,10 +31,13 @@ function AppContent() {
     );
   }
 
+  if (showLogin) {
+    return <LoginPage />;
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <AdminBar />
-      <AdminLogin onLogin={login} />
       <Header />
       <main>
         <Hero />
