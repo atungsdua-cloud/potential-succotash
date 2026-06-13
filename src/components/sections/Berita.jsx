@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, ArrowRight, Trash2, Plus } from 'lucide-react';
+import { Calendar, ArrowRight, Trash2, Plus, X } from 'lucide-react';
 import beritaData from '../../data/berita.json';
 import useContent from '../../hooks/useContent';
 import useSettings from '../../hooks/useSettings';
@@ -35,6 +35,7 @@ export default function Berita() {
   });
 
   const [selectedIds, setSelectedIds] = useState([]);
+  const [viewing, setViewing] = useState(null);
   const toast = useToast();
   const [items, setItems] = useState(list || []);
 
@@ -175,15 +176,64 @@ export default function Berita() {
                       day: 'numeric', month: 'long', year: 'numeric',
                     })}
                   </div>
-                  <a href="#" className="flex items-center gap-1 text-xs font-semibold text-honda-red hover:text-honda-red-dark transition-colors">
+                  <button onClick={() => setViewing(item)} className="flex items-center gap-1 text-xs font-semibold text-honda-red hover:text-honda-red-dark transition-colors">
                     Baca <ArrowRight size={14} />
-                  </a>
+                  </button>
                 </div>
               </div>
             </motion.article>
           ))}
         </div>
       </div>
+
+      <AnimatePresence>
+        {viewing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto"
+            onClick={() => setViewing(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl overflow-hidden premium-shadow my-8"
+            >
+              {viewing.gambar && (
+                <div className="relative h-56 sm:h-72 overflow-hidden">
+                  <img src={viewing.gambar} alt={viewing.judul} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  <span className="absolute top-4 left-4 px-3 py-1 bg-honda-red text-white text-sm font-semibold rounded-lg">
+                    {viewing.kategori}
+                  </span>
+                </div>
+              )}
+              <button
+                onClick={() => setViewing(null)}
+                className="absolute top-4 right-4 p-2 bg-black/40 hover:bg-black/60 text-white rounded-xl backdrop-blur-sm transition-all z-10"
+              >
+                <X size={18} />
+              </button>
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-400 mb-3">
+                  <Calendar size={14} />
+                  {new Date(viewing.tanggal).toLocaleDateString('id-ID', {
+                    day: 'numeric', month: 'long', year: 'numeric',
+                  })}
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold mb-4">{viewing.judul}</h3>
+                <div
+                  className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                  dangerouslySetInnerHTML={{ __html: viewing.excerpt || '' }}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showModal && (
