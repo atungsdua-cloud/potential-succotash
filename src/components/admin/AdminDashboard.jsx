@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Image, Car, Gift, MessageSquare, Newspaper, Images, Star, Settings,
   X, Plus, Trash2, Edit3, Search, ChevronLeft, ChevronRight, ArrowLeft, Check, Eye,
-  Building2, Upload, LogOut, ExternalLink, Save, AlertTriangle
+  Building2, Upload, LogOut, ExternalLink, Save, AlertTriangle, Calendar, RefreshCw, Menu, Moon, Sun,
+  ShieldCheck, Wallet, Wrench, CheckCircle as CheckCircleIcon
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import axios from 'axios';
+import { useTheme } from '../../context/ThemeContext';
 import apiClient from '../../api';
 import * as api from '../../api';
 import InlineEditor from './InlineEditor';
@@ -32,6 +33,8 @@ const tabs = [
   { id: 'gallery', label: 'Gallery', icon: Images },
   { id: 'keunggulan', label: 'Keunggulan', icon: Star },
   { id: 'settings', label: 'Pengaturan', icon: Settings },
+  { id: 'testdrive_data', label: 'Test Drive', icon: Calendar },
+  { id: 'tradein_data', label: 'Trade In', icon: RefreshCw },
 ];
 
 const sectionConfigs = {
@@ -142,6 +145,37 @@ const sectionConfigs = {
       { key: 'icon', label: 'Icon', width: 'w-20' },
       { key: 'title', label: 'Judul', width: 'min-w-[160px]' },
       { key: 'desc', label: 'Deskripsi', width: 'min-w-[200px]' },
+    ],
+  },
+};
+
+const submissionConfigs = {
+  testdrive_data: {
+    title: 'Data Test Drive',
+    endpoint: '/test-drive',
+    columns: [
+      { key: 'id', label: 'ID', width: 'w-16' },
+      { key: 'nama', label: 'Nama', width: 'min-w-[140px]' },
+      { key: 'nohp', label: 'No. HP', width: 'w-36' },
+      { key: 'mobil', label: 'Mobil', width: 'min-w-[140px]' },
+      { key: 'tanggal', label: 'Tanggal', width: 'w-28' },
+      { key: 'lokasi', label: 'Lokasi', width: 'min-w-[120px]' },
+      { key: 'created_at', label: 'Dikirim', width: 'w-32', render: (v) => v ? new Date(v).toLocaleDateString('id') : '-' },
+    ],
+  },
+  tradein_data: {
+    title: 'Data Trade In',
+    endpoint: '/trade-in',
+    columns: [
+      { key: 'id', label: 'ID', width: 'w-16' },
+      { key: 'nama', label: 'Nama', width: 'min-w-[140px]' },
+      { key: 'nohp', label: 'No. HP', width: 'w-36' },
+      { key: 'merek', label: 'Merek', width: 'min-w-[120px]' },
+      { key: 'tahun', label: 'Tahun', width: 'w-20' },
+      { key: 'kilometer', label: 'Km', width: 'w-24' },
+      { key: 'kondisi', label: 'Kondisi', width: 'w-20' },
+      { key: 'mobil_target', label: 'Target', width: 'min-w-[120px]' },
+      { key: 'created_at', label: 'Dikirim', width: 'w-32', render: (v) => v ? new Date(v).toLocaleDateString('id') : '-' },
     ],
   },
 };
@@ -284,6 +318,18 @@ const settingsGroups = [
     ],
   },
 ];
+
+const iconRegistry = {
+  Building2, Car, Gift, Star, MessageSquare, Newspaper, Images, Settings,
+  ShieldCheck, Wallet, RefreshCw, Wrench, Calendar,
+  CheckCircle: CheckCircleIcon,
+};
+
+function renderIcon(name) {
+  if (!name) return null;
+  const Icon = iconRegistry[name];
+  return Icon ? <Icon size={20} className="text-honda-red" /> : <span className="text-xs text-gray-400">{name}</span>;
+}
 
 function tryParse(val) {
   if (!val) return [];
@@ -525,7 +571,7 @@ function EditModal({ fields, item, onSave, onClose }) {
                   ))}
                 </select>
               ) : field.type === 'number' ? (
-                <input type="number" value={form[field.key] || ''}
+                <input type="number" value={form[field.key] ?? ''}
                   onChange={(e) => handleChange(field.key, Number(e.target.value))}
                   className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-honda-red/50" />
               ) : field.type === 'gambar' ? (
@@ -599,12 +645,19 @@ function DataTable({ config, onNavigateAway }) {
     setSelected(prev => prev.length === paged.length ? [] : paged.map(i => i.id));
   };
 
+  const [confirmBulk, setConfirmBulk] = useState(null);
+
   const bulkDelete = async () => {
-    for (const id of selected) {
-      try { await remove(id); } catch { }
+    if (!confirmBulk) { setConfirmBulk(true); return; }
+    setConfirmBulk(null);
+    try {
+      await apiClient.post(`/batch-delete/${config.table}`, { ids: selected });
+      setItems(prev => prev.filter(i => !selected.includes(i.id)));
+      toast(`${selected.length} item dihapus`, 'success');
+      setSelected([]);
+    } catch {
+      toast('Gagal menghapus', 'error');
     }
-    toast(`${selected.length} item dihapus`, 'success');
-    setSelected([]);
   };
 
   const handleDelete = async (id) => {
@@ -643,9 +696,9 @@ function DataTable({ config, onNavigateAway }) {
               <span className="text-sm text-gray-500">{selected.length} dipilih</span>
               <button onClick={selectAll}
                 className="px-3 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700">
-                {selected.length === paged.length ? 'Deselect' : 'Pilih Semua'}
+                {selected.length === paged.length ? 'Batalkan' : 'Pilih Semua'}
               </button>
-              <button onClick={bulkDelete}
+              <button onClick={() => setConfirmBulk(true)}
                 className="flex items-center gap-1 px-3 py-2 text-xs font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl">
                 <Trash2 size={12} /> Hapus
               </button>
@@ -719,7 +772,7 @@ function DataTable({ config, onNavigateAway }) {
                       {col.key === 'id' ? (
                         <span className="text-xs text-gray-400">#{item.id}</span>
                       ) : col.key === 'icon' ? (
-                        <span className="text-lg text-honda-red">{item[col.key]}</span>
+                        <span className="flex items-center">{renderIcon(item[col.key])}</span>
                       ) : col.render ? (
                         col.render(item[col.key])
                       ) : (
@@ -813,7 +866,82 @@ function DataTable({ config, onNavigateAway }) {
             onCancel={() => setConfirmDelete(null)}
           />
         )}
+        {confirmBulk && (
+          <ConfirmModal
+            message={`Hapus ${selected.length} item yang dipilih?`}
+            onConfirm={bulkDelete}
+            onCancel={() => setConfirmBulk(null)}
+          />
+        )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+function SubmissionTable({ config }) {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const perPage = 15;
+
+  useEffect(() => {
+    apiClient.get(config.endpoint).then((res) => {
+      setItems(res.data);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  const paged = items.slice((page - 1) * perPage, page * perPage);
+  const totalPages = Math.ceil(items.length / perPage);
+
+  return (
+    <div>
+      <h2 className="text-xl font-bold mb-2">{config.title}</h2>
+      <p className="text-gray-500 dark:text-gray-400 mb-6">Total {items.length} pengajuan</p>
+      <div className="bg-white dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80">
+                {config.columns.map(col => (
+                  <th key={col.key} className={`px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider ${col.width || ''}`}>
+                    {col.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
+              {loading ? (
+                <tr><td colSpan={config.columns.length} className="px-4 py-12 text-center text-gray-400">
+                  <span className="w-5 h-5 border-2 border-honda-red border-t-transparent rounded-full animate-spin inline-block" />
+                </td></tr>
+              ) : paged.length === 0 ? (
+                <tr><td colSpan={config.columns.length} className="px-4 py-12 text-center text-gray-400">Belum ada data</td></tr>
+              ) : paged.map(item => (
+                <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30">
+                  {config.columns.map(col => (
+                    <td key={col.key} className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                      {col.render ? col.render(item[col.key]) : <span className="line-clamp-1">{item[col.key] ?? '-'}</span>}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+            <span className="text-sm text-gray-500">{items.length} item</span>
+            <div className="flex items-center gap-1">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"><ChevronLeft size={16} /></button>
+              <span className="text-sm text-gray-500 px-2">{page} / {totalPages}</span>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"><ChevronRight size={16} /></button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -896,34 +1024,23 @@ function SettingsEditor() {
   );
 }
 
-function HeroEditor() {
-  const [settings, setSettings] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState({});
+function HeroSectionEditor({ settings, update, saving }) {
   const toast = useToast();
+  const [localSettings, setLocalSettings] = useState(settings);
+  const [localSaving, setLocalSaving] = useState(saving || {});
 
-  useEffect(() => {
-    api.fetchSettings().then(data => {
-      if (data) setSettings(data);
-      setLoading(false);
-    }).catch(() => setLoading(false));
-  }, []);
+  useEffect(() => { setLocalSettings(settings); }, [settings]);
 
-  const update = async (key, value) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
-    setSaving(prev => ({ ...prev, [key]: true }));
+  const save = async (key, value) => {
+    setLocalSaving(prev => ({ ...prev, [key]: true }));
     try {
       await api.updateSetting(key, value);
       toast('Disimpan', 'success');
     } catch {
       toast('Gagal menyimpan', 'error');
     }
-    setSaving(prev => ({ ...prev, [key]: false }));
+    setLocalSaving(prev => ({ ...prev, [key]: false }));
   };
-
-  if (loading) {
-    return <div className="flex items-center justify-center py-20"><span className="w-6 h-6 border-2 border-honda-red border-t-transparent rounded-full animate-spin" /></div>;
-  }
 
   const heroFields = [
     { key: 'hero_title', label: 'Judul Hero', type: 'text' },
@@ -937,46 +1054,42 @@ function HeroEditor() {
         <div key={key} className="bg-white dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
           <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-3">{label}</label>
           {type === 'textarea' ? (
-            <textarea value={settings[key] || ''}
-              onChange={(e) => setSettings(prev => ({ ...prev, [key]: e.target.value }))}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-honda-red/50"
-              rows={3} />
+            <textarea value={localSettings[key] || ''}
+              onChange={(e) => setLocalSettings(prev => ({ ...prev, [key]: e.target.value }))}
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-honda-red/50" rows={3} />
           ) : type === 'gambar' ? (
             <div className="space-y-3">
-              {settings[key] && (
-                <img src={settings[key]} alt="Hero" className="w-full h-48 object-cover rounded-xl" />
+              {localSettings[key] && (
+                <img src={localSettings[key]} alt="Hero" className="w-full h-48 object-cover rounded-xl" />
               )}
-              <input type="text" value={settings[key] || ''}
-                onChange={(e) => setSettings(prev => ({ ...prev, [key]: e.target.value }))}
+              <input type="text" value={localSettings[key] || ''}
+                onChange={(e) => setLocalSettings(prev => ({ ...prev, [key]: e.target.value }))}
                 placeholder="URL Gambar"
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-honda-red/50" />
-              <UploadWidget onUpload={(url) => update(key, url)} currentUrl={settings[key] || ''} crop={16 / 9} />
+              <UploadWidget onUpload={(url) => save(key, url)} currentUrl={localSettings[key] || ''} crop={16 / 9} />
             </div>
           ) : (
-            <input type="text" value={settings[key] || ''}
-              onChange={(e) => setSettings(prev => ({ ...prev, [key]: e.target.value }))}
+            <input type="text" value={localSettings[key] || ''}
+              onChange={(e) => setLocalSettings(prev => ({ ...prev, [key]: e.target.value }))}
               className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-honda-red/50" />
           )}
           <div className="flex justify-end mt-3">
-            <button onClick={() => update(key, settings[key])} disabled={saving[key]}
+            <button onClick={() => save(key, localSettings[key])} disabled={localSaving[key]}
               className="px-4 py-2 bg-honda-red hover:bg-honda-red-dark text-white rounded-xl transition-all disabled:opacity-50 flex items-center gap-1.5 text-sm font-semibold">
-              {saving[key] ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={15} />}
+              {localSaving[key] ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={15} />}
               Simpan
             </button>
           </div>
         </div>
       ))}
-
       <div className="bg-white dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
         <h4 className="font-semibold mb-3">Pratinjau Hero</h4>
         <div className="relative h-48 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800">
-          {settings.hero_image && (
-            <img src={settings.hero_image} alt="Hero Preview" className="w-full h-full object-cover" />
-          )}
+          {localSettings.hero_image && <img src={localSettings.hero_image} alt="Hero Preview" className="w-full h-full object-cover" />}
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center p-8">
             <div>
-              <h2 className="text-white text-2xl font-bold">{settings.hero_title || 'Judul Hero'}</h2>
-              <p className="text-white/70 text-sm mt-2">{settings.hero_subtitle || 'Subjudul hero'}</p>
+              <h2 className="text-white text-2xl font-bold">{localSettings.hero_title || 'Judul Hero'}</h2>
+              <p className="text-white/70 text-sm mt-2">{localSettings.hero_subtitle || 'Subjudul hero'}</p>
             </div>
           </div>
         </div>
@@ -992,13 +1105,13 @@ function Overview() {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const sections = ['mobil', 'promo', 'testimoni', 'berita', 'gallery', 'keunggulan'];
+        const sections = ['mobil', 'promo', 'testimoni', 'berita', 'gallery', 'keunggulan', 'test-drive', 'trade-in'];
         const results = await Promise.all(
           sections.map(async (s) => {
             try {
-              const res = await axios.get(`/api/${s}`);
-              return { section: s, count: res.data.length };
-            } catch { return { section: s, count: 0 }; }
+              const res = await apiClient.get(`/${s}`);
+              return { section: s.replace('-', '_'), count: res.data.length };
+            } catch { return { section: s.replace('-', '_'), count: 0 }; }
           })
         );
         const obj = {};
@@ -1017,6 +1130,8 @@ function Overview() {
     { label: 'Berita', count: stats?.berita || 0, icon: Newspaper, color: 'bg-purple-500' },
     { label: 'Gallery', count: stats?.gallery || 0, icon: Images, color: 'bg-pink-500' },
     { label: 'Keunggulan', count: stats?.keunggulan || 0, icon: Star, color: 'bg-yellow-500' },
+    { label: 'Test Drive', count: stats?.test_drive || 0, icon: Calendar, color: 'bg-teal-500' },
+    { label: 'Trade In', count: stats?.trade_in || 0, icon: RefreshCw, color: 'bg-indigo-500' },
   ];
 
   return (
@@ -1058,12 +1173,16 @@ function Overview() {
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { logout } = useAuth();
   const [logoText, setLogoText] = useState('Honda');
   const [logoTextHl, setLogoTextHl] = useState('Dealer');
+  const [settings, setSettings] = useState({});
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     api.fetchSettings().then(data => {
+      if (data) setSettings(data);
       if (data?.logo_text) setLogoText(data.logo_text);
       if (data?.logo_text_hl) setLogoTextHl(data.logo_text_hl);
     }).catch(() => {});
@@ -1077,7 +1196,12 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex pt-10 sm:pt-12">
-      <aside className="w-64 lg:w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col shrink-0">
+      {/* mobile overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static z-40 w-64 lg:w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col shrink-0 transition-transform duration-300`}>
         <div className="p-5 border-b border-gray-200 dark:border-gray-800">
           <h1 className="text-xl font-black flex items-center gap-2">
             <span className="w-8 h-8 bg-honda-red rounded-xl flex items-center justify-center text-white text-sm font-bold shrink-0">H</span>
@@ -1098,7 +1222,7 @@ export default function AdminDashboard() {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              <button key={tab.id} onClick={() => { setActiveTab(tab.id); setSidebarOpen(false); }}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   isActive
                     ? 'bg-honda-red/10 text-honda-red shadow-sm'
@@ -1110,7 +1234,12 @@ export default function AdminDashboard() {
             );
           })}
         </nav>
-        <div className="p-3 border-t border-gray-200 dark:border-gray-800">
+        <div className="p-3 border-t border-gray-200 dark:border-gray-800 space-y-1">
+          <button onClick={toggleTheme}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            {theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+          </button>
           <button onClick={logout}
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 transition-all">
             <LogOut size={18} /> Keluar
@@ -1118,21 +1247,24 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="sticky top-10 sm:top-12 z-10 bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 px-6 lg:px-8 py-4 flex items-center justify-between">
+      <main className="flex-1 overflow-y-auto min-w-0">
+        <div className="sticky top-10 sm:top-12 z-20 bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 px-4 lg:px-8 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <ActiveIcon size={22} className="text-honda-red" />
-            <h2 className="text-lg font-bold">{tabs.find(t => t.id === activeTab)?.label}</h2>
+            <button onClick={() => setSidebarOpen(o => !o)} className="lg:hidden p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
+              <Menu size={20} />
+            </button>
+            <ActiveIcon size={22} className="text-honda-red shrink-0" />
+            <h2 className="text-lg font-bold truncate">{tabs.find(t => t.id === activeTab)?.label}</h2>
           </div>
           <a href="/"
-            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shrink-0">
             <ExternalLink size={15} /> Lihat Website
           </a>
         </div>
 
-        <div className="p-6 lg:p-8">
+        <div className="p-4 lg:p-8">
           {activeTab === 'dashboard' && <Overview />}
-          {activeTab === 'hero' && <HeroEditor />}
+          {activeTab === 'hero' && <HeroSectionEditor settings={settings} update={saveSetting} saving={{}} />}
           {activeTab === 'mobil' && <DataTable config={sectionConfigs.mobil} />}
           {activeTab === 'promo' && <DataTable config={sectionConfigs.promo} />}
           {activeTab === 'testimoni' && <DataTable config={sectionConfigs.testimoni} />}
@@ -1140,6 +1272,8 @@ export default function AdminDashboard() {
           {activeTab === 'gallery' && <DataTable config={sectionConfigs.gallery} />}
           {activeTab === 'keunggulan' && <DataTable config={sectionConfigs.keunggulan} />}
           {activeTab === 'settings' && <SettingsEditor />}
+          {activeTab === 'testdrive_data' && <SubmissionTable config={submissionConfigs.testdrive_data} />}
+          {activeTab === 'tradein_data' && <SubmissionTable config={submissionConfigs.tradein_data} />}
         </div>
       </main>
     </div>
