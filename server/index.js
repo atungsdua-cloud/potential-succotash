@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import db from './db.js';
+import { supabase } from './supabase.js';
 import authRoutes from './routes/auth.js';
 import uploadRoutes from './routes/upload.js';
 import { createCrudRoutes } from './routes/crud.js';
@@ -38,73 +38,125 @@ app.use('/api/berita', createCrudRoutes('berita', beritaFields));
 app.use('/api/gallery', createCrudRoutes('gallery', galleryFields));
 app.use('/api/keunggulan', createCrudRoutes('keunggulan', keunggulanFields));
 
-app.get('/api/settings', (req, res) => {
-  const rows = db.prepare('SELECT key, value FROM settings').all();
-  const obj = {};
-  for (const row of rows) obj[row.key] = row.value;
-  res.json(obj);
-});
-
-app.put('/api/settings/:key', authMiddleware, (req, res) => {
-  const { value } = req.body;
-  if (value === undefined) return res.status(400).json({ error: 'Value required' });
-  db.prepare('UPDATE settings SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE key = ?').run(value, req.params.key);
-  res.json({ key: req.params.key, value });
-});
-
-app.post('/api/batch-delete/:table', authMiddleware, (req, res) => {
-  const { table } = req.params;
-  if (!VALID_TABLES.includes(table)) return res.status(400).json({ error: 'Invalid table' });
-  const { ids } = req.body;
-  if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: 'No IDs provided' });
-  const placeholders = ids.map(() => '?').join(',');
-  const result = db.prepare(`DELETE FROM ${table} WHERE id IN (${placeholders})`).run(...ids);
-  res.json({ deleted: result.changes });
-});
-
-app.post('/api/reorder/:table', authMiddleware, (req, res) => {
-  const { table } = req.params;
-  if (!VALID_TABLES.includes(table)) return res.status(400).json({ error: 'Invalid table' });
-  const { ids } = req.body;
-  if (!Array.isArray(ids)) return res.status(400).json({ error: 'Invalid IDs' });
-  const stmt = db.prepare(`UPDATE ${table} SET sort_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
-  const tx = db.transaction(() => {
-    for (let i = 0; i < ids.length; i++) stmt.run(i, ids[i]);
-  });
-  tx();
-  res.json({ ok: true });
-});
-
-app.post('/api/test-drive', (req, res) => {
-  const { nama, nohp, mobil, tanggal, lokasi } = req.body;
-  if (!nama || !nohp || !mobil || !tanggal || !lokasi) {
-    return res.status(400).json({ error: 'Semua field harus diisi' });
+app.get('/api/settings', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('settings').select('key, value');
+    if (error) throw error;
+    const obj = {};
+    for (const row of data) obj[row.key] = row.value;
+    res.json(obj);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-  const result = db.prepare(
-    'INSERT INTO test_drive (nama, nohp, mobil, tanggal, lokasi) VALUES (?, ?, ?, ?, ?)'
-  ).run(nama, nohp, mobil, tanggal, lokasi);
-  res.status(201).json({ id: result.lastInsertRowid, message: 'Test drive berhasil didaftarkan' });
 });
 
-app.get('/api/test-drive', authMiddleware, (req, res) => {
-  const rows = db.prepare('SELECT * FROM test_drive ORDER BY created_at DESC').all();
-  res.json(rows);
-});
-
-app.post('/api/trade-in', (req, res) => {
-  const { nama, nohp, merek, tahun, kilometer, kondisi, mobil_target } = req.body;
-  if (!nama || !nohp || !merek || !tahun || !kilometer || !kondisi) {
-    return res.status(400).json({ error: 'Semua field harus diisi' });
+app.put('/api/settings/:key', authMiddleware, async (req, res) => {
+  try {
+    const { value } = req.body;
+    if (value === undefined) return res.status(400).json({ error: 'Value required' });
+    const { error } = await supabase
+      .from('settings')
+      .update({ value, updated_at: new Date().toISOString() })
+      .eq('key', req.params.key);
+    if (error) throw error;
+    res.json({ key: req.params.key, value });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-  const result = db.prepare(
-    'INSERT INTO trade_in (nama, nohp, merek, tahun, kilometer, kondisi, mobil_target) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).run(nama, nohp, merek, tahun, kilometer, kondisi, mobil_target || '');
-  res.status(201).json({ id: result.lastInsertRowid, message: 'Trade-in berhasil didaftarkan' });
 });
 
-app.get('/api/trade-in', authMiddleware, (req, res) => {
-  const rows = db.prepare('SELECT * FROM trade_in ORDER BY created_at DESC').all();
-  res.json(rows);
+app.post('/api/batch-delete/:table', authMiddleware, async (req, res) => {
+  try {
+    const { table } = req.params;
+    if (!VALID_TABLES.includes(table)) return res.status(400).json({ error: 'Invalid table' });
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: 'No IDs provided' });
+    const { error } = await supabase.from(table).delete().in('id', ids);
+    if (error) throw error;
+    res.json({ deleted: ids.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/reorder/:table', authMiddleware, async (req, res) => {
+  try {
+    const { table } = req.params;
+    if (!VALID_TABLES.includes(table)) return res.status(400).json({ error: 'Invalid table' });
+    const { ids } = req.body;
+    if (!Array.isArray(ids)) return res.status(400).json({ error: 'Invalid IDs' });
+    for (let i = 0; i < ids.length; i++) {
+      await supabase
+        .from(table)
+        .update({ sort_order: i, updated_at: new Date().toISOString() })
+        .eq('id', ids[i]);
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/test-drive', async (req, res) => {
+  try {
+    const { nama, nohp, mobil, tanggal, lokasi } = req.body;
+    if (!nama || !nohp || !mobil || !tanggal || !lokasi) {
+      return res.status(400).json({ error: 'Semua field harus diisi' });
+    }
+    const { data, error } = await supabase
+      .from('test_drive')
+      .insert({ nama, nohp, mobil, tanggal, lokasi })
+      .select('id')
+      .limit(1);
+    if (error) throw error;
+    res.status(201).json({ id: data[0].id, message: 'Test drive berhasil didaftarkan' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/test-drive', authMiddleware, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('test_drive')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/trade-in', async (req, res) => {
+  try {
+    const { nama, nohp, merek, tahun, kilometer, kondisi, mobil_target } = req.body;
+    if (!nama || !nohp || !merek || !tahun || !kilometer || !kondisi) {
+      return res.status(400).json({ error: 'Semua field harus diisi' });
+    }
+    const { data, error } = await supabase
+      .from('trade_in')
+      .insert({ nama, nohp, merek, tahun, kilometer, kondisi, mobil_target: mobil_target || '' })
+      .select('id')
+      .limit(1);
+    if (error) throw error;
+    res.status(201).json({ id: data[0].id, message: 'Trade-in berhasil didaftarkan' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/trade-in', authMiddleware, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('trade_in')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.use(express.static(join(__dirname, '..', 'dist')));
