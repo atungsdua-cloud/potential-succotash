@@ -2,12 +2,14 @@ import { useState, useRef } from 'react';
 import { Upload, X, Loader2, Crop } from 'lucide-react';
 import api from '../../api';
 import ImageCropper from './ImageCropper';
+import { useToast } from '../../context/ToastContext';
 
 export default function UploadWidget({ onUpload, currentUrl, crop = true }) {
   const inputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(currentUrl || '');
   const [cropFile, setCropFile] = useState(null);
+  const toast = useToast();
 
   const handleFile = (e) => {
     const file = e.target.files?.[0];
@@ -31,7 +33,7 @@ export default function UploadWidget({ onUpload, currentUrl, crop = true }) {
       setPreview(url);
       onUpload?.(url);
     } catch (err) {
-      alert('Upload gagal: ' + (err.response?.data?.error || err.message));
+      toast('Upload gagal: ' + (err.response?.data?.error || err.message), 'error');
     } finally {
       setUploading(false);
     }

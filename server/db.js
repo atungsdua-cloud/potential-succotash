@@ -233,6 +233,21 @@ const initUsers = `CREATE TABLE IF NOT EXISTS users (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 )`;
 
+const initTestDrive = `CREATE TABLE IF NOT EXISTS test_drive (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nama TEXT NOT NULL, nohp TEXT NOT NULL, mobil TEXT NOT NULL,
+  tanggal TEXT NOT NULL, lokasi TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)`;
+
+const initTradeIn = `CREATE TABLE IF NOT EXISTS trade_in (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nama TEXT NOT NULL, nohp TEXT NOT NULL, merek TEXT NOT NULL,
+  tahun TEXT NOT NULL, kilometer TEXT NOT NULL, kondisi TEXT NOT NULL,
+  mobil_target TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)`;
+
 db.exec(initSettings);
 db.exec(initUsers);
 db.exec(initMobil);
@@ -241,6 +256,8 @@ db.exec(initTestimoni);
 db.exec(initBerita);
 db.exec(initGallery);
 db.exec(initKeunggulan);
+db.exec(initTestDrive);
+db.exec(initTradeIn);
 
 ['mobil', 'promo', 'testimoni', 'berita', 'gallery', 'keunggulan'].forEach(t => ensureColumn(t, 'sort_order', 'INTEGER DEFAULT 0'));
 ensureColumn('mobil', 'tipe', 'TEXT');

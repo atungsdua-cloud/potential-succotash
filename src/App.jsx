@@ -1,6 +1,7 @@
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/layout/Header';
 import AdminBar from './components/admin/AdminBar';
 import LoginPage from './components/admin/LoginPage';
@@ -65,7 +66,9 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <ToastProvider>
-          <AppContent />
+          <ErrorBoundary>
+            <AppContent />
+          </ErrorBoundary>
         </ToastProvider>
       </AuthProvider>
     </ThemeProvider>

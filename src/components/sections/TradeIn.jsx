@@ -5,11 +5,14 @@ import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import mobilData from '../../data/mobil.json';
 import InlineEditor from '../admin/InlineEditor';
 import useSettings from '../../hooks/useSettings';
+import { useToast } from '../../context/ToastContext';
+import api from '../../api';
 
 export default function TradeIn() {
   const [ref, isVisible] = useScrollAnimation();
   const fileRef = useRef(null);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     nama: '', nohp: '', merek: '', tahun: '', kilometer: '', kondisi: 'baik', mobil_target: '',
   });
@@ -24,17 +27,25 @@ export default function TradeIn() {
     tradein_success_desc: 'Tim kami akan menghubungi Anda dalam 1x24 jam untuk memberikan estimasi harga.',
     tradein_apply_again: 'Ajukan Lagi',
   });
+  const toast = useToast();
 
   const handleFile = (e) => {
     const selected = Array.from(e.target.files);
     setFiles((prev) => [...prev, ...selected].slice(0, 5));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (Object.values(form).every((v) => v.trim())) {
+    if (!Object.values(form).every((v) => v.trim())) return;
+    setLoading(true);
+    try {
+      await api.post('/trade-in', form);
       setSubmitted(true);
+      toast('Berhasil mengirim data trade-in', 'success');
+    } catch (err) {
+      toast('Gagal: ' + (err.response?.data?.error || err.message), 'error');
     }
+    setLoading(false);
   };
 
   return (
@@ -213,10 +224,13 @@ export default function TradeIn() {
 
               <button
                 type="submit"
+                disabled={loading}
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-honda-red hover:bg-honda-red-dark
-                           text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-honda-red/25"
+                           text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-honda-red/25 disabled:opacity-50"
               >
-                {s.tradein_button} <ArrowRight size={18} />
+                {loading ? (
+                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : <>{s.tradein_button} <ArrowRight size={18} /></>}
               </button>
             </motion.form>
           )}

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Image, Car, Gift, MessageSquare, Newspaper, Images, Star, Settings,
   X, Plus, Trash2, Edit3, Search, ChevronLeft, ChevronRight, ArrowLeft, Check, Eye,
-  Building2, Upload, LogOut, ExternalLink, Save, AlertTriangle, GripVertical
+  Building2, Upload, LogOut, ExternalLink, Save, AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -406,9 +406,32 @@ function ConfirmModal({ message, onConfirm, onCancel }) {
 function EditModal({ fields, item, onSave, onClose }) {
   const [form, setForm] = useState(item || {});
   const [loading, setLoading] = useState(false);
+  const [tagInputs, setTagInputs] = useState({});
+  const formRef = useRef(null);
+  const toast = useToast();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const el = formRef.current?.querySelector('input:not([type="hidden"]), textarea, select');
+      el?.focus();
+    }, 150);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleChange = (key, value) => {
     setForm(prev => ({ ...prev, [key]: value }));
+  };
+
+  const addTag = (key) => {
+    const raw = tagInputs[key] || '';
+    const items = raw.split(',').map(s => s.trim()).filter(Boolean);
+    if (items.length === 0) return;
+    handleChange(key, [...(form[key] || []), ...items]);
+    setTagInputs(prev => ({ ...prev, [key]: '' }));
+  };
+
+  const removeTag = (key, index) => {
+    handleChange(key, (form[key] || []).filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -418,9 +441,15 @@ function EditModal({ fields, item, onSave, onClose }) {
       await onSave(form);
       onClose();
     } catch (err) {
-      alert('Gagal menyimpan: ' + (err.response?.data?.error || err.message));
+      toast('Gagal menyimpan: ' + (err.response?.data?.error || err.message), 'error');
     }
     setLoading(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      handleSubmit(e);
+    }
   };
 
   return (
@@ -443,7 +472,7 @@ function EditModal({ fields, item, onSave, onClose }) {
 
         <h3 className="text-lg font-bold mb-5">Edit Item</h3>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form ref={formRef} onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-4">
           {fields.map((field) => (
             <div key={field.key}>
               <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-1.5">
@@ -455,38 +484,21 @@ function EditModal({ fields, item, onSave, onClose }) {
                     {(form[field.key] || []).map((tag, i) => (
                       <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 bg-honda-red/10 text-honda-red text-sm rounded-lg">
                         {tag}
-                        <button type="button" onClick={() => {
-                          const next = [...(form[field.key] || [])];
-                          next.splice(i, 1);
-                          handleChange(field.key, next);
-                        }} className="hover:text-honda-red-dark"><X size={14} /></button>
+                        <button type="button" onClick={() => removeTag(field.key, i)} className="hover:text-honda-red-dark">
+                          <X size={14} />
+                        </button>
                       </span>
                     ))}
                   </div>
                   <div className="flex gap-2">
                     <input type="text"
-                      placeholder={`Tambah ${field.label.toLowerCase()}`}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          const val = e.target.value.trim();
-                          if (val) {
-                            handleChange(field.key, [...(form[field.key] || []), val]);
-                            e.target.value = '';
-                          }
-                        }
-                      }}
+                      value={tagInputs[field.key] || ''}
+                      onChange={(e) => setTagInputs(prev => ({ ...prev, [field.key]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(field.key); } }}
+                      placeholder="Tambah (pisah dengan koma)"
                       className="flex-1 px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-honda-red/50 text-sm"
                     />
-                    <button type="button"
-                      onClick={(e) => {
-                        const input = e.target.previousElementSibling;
-                        const val = input?.value?.trim();
-                        if (val) {
-                          handleChange(field.key, [...(form[field.key] || []), val]);
-                          input.value = '';
-                        }
-                      }}
+                    <button type="button" onClick={() => addTag(field.key)}
                       className="px-3 py-2 bg-honda-red text-white text-sm font-semibold rounded-xl hover:bg-honda-red-dark">
                       <Plus size={16} />
                     </button>
@@ -522,7 +534,14 @@ function EditModal({ fields, item, onSave, onClose }) {
                     onChange={(e) => handleChange(field.key, e.target.value)}
                     placeholder="URL Gambar"
                     className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-honda-red/50" />
-                  <UploadWidget onUpload={(url) => handleChange(field.key, url)} currentUrl={form[field.key] || ''} />
+                  <div className="flex items-center gap-3">
+                    <UploadWidget onUpload={(url) => handleChange(field.key, url)} currentUrl={form[field.key] || ''} />
+                    {form[field.key] && (
+                      <img src={form[field.key]} alt="preview"
+                        className="w-16 h-12 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                        onError={(e) => { e.target.style.display = 'none'; }} />
+                    )}
+                  </div>
                 </div>
               ) : (
                 <input type="text" value={form[field.key] || ''}
@@ -606,7 +625,7 @@ function DataTable({ config, onNavigateAway }) {
     const next = [...items];
     [next[idx], next[to]] = [next[to], next[idx]];
     reorder(next.map(i => i.id));
-    window.location.reload();
+    setItems(next);
   };
 
   return (

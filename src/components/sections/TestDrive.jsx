@@ -5,10 +5,13 @@ import mobilData from '../../data/mobil.json';
 import InlineEditor from '../admin/InlineEditor';
 import useSettings from '../../hooks/useSettings';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
+import { useToast } from '../../context/ToastContext';
+import api from '../../api';
 
 export default function TestDrive() {
   const [ref, isVisible] = useScrollAnimation();
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ nama: '', nohp: '', mobil: '', tanggal: '', lokasi: '' });
   const [s, update] = useSettings({
     testdrive_badge: 'Booking Test Drive',
@@ -20,12 +23,20 @@ export default function TestDrive() {
     testdrive_success_desc: 'Kami akan menghubungi Anda untuk konfirmasi jadwal test drive.',
     testdrive_book_again: 'Booking Lagi',
   });
+  const toast = useToast();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (Object.values(form).every((v) => v.trim())) {
+    if (!Object.values(form).every((v) => v.trim())) return;
+    setLoading(true);
+    try {
+      await api.post('/test-drive', form);
       setSubmitted(true);
+      toast('Berhasil mendaftarkan test drive', 'success');
+    } catch (err) {
+      toast('Gagal: ' + (err.response?.data?.error || err.message), 'error');
     }
+    setLoading(false);
   };
 
   return (
@@ -175,10 +186,13 @@ export default function TestDrive() {
 
               <button
                 type="submit"
+                disabled={loading}
                 className="w-full py-3.5 bg-honda-red hover:bg-honda-red-dark text-white font-bold rounded-xl
-                           transition-all duration-300 shadow-lg shadow-honda-red/25"
+                           transition-all duration-300 shadow-lg shadow-honda-red/25 disabled:opacity-50"
               >
-                {s.testdrive_button}
+                {loading ? (
+                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
+                ) : s.testdrive_button}
               </button>
             </motion.form>
           )}

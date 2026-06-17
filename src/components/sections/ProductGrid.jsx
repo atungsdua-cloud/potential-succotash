@@ -37,6 +37,7 @@ function getMinHarga(mobil) {
 }
 
 function ModalDetail({ mobil, onClose, onUpdate }) {
+  const { editMode } = useAuth();
   const [loading, setLoading] = useState(true);
   const [imgLoaded, setImgLoaded] = useState(false);
 
@@ -67,9 +68,11 @@ function ModalDetail({ mobil, onClose, onUpdate }) {
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgLoaded(true)}
             className={`w-full h-full object-cover transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`} />
-          <div className="absolute top-4 left-4 z-20">
-            <UploadWidget onUpload={(url) => onUpdate?.(mobil.id, { foto: url })} currentUrl={mobil.foto} />
-          </div>
+          {editMode && (
+            <div className="absolute top-4 left-4 z-20">
+              <UploadWidget onUpload={(url) => onUpdate?.(mobil.id, { foto: url })} currentUrl={mobil.foto} />
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
           <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 pointer-events-none">
             <InlineEditor value={mobil.nama} onSave={(val) => onUpdate?.(mobil.id, { nama: val })}

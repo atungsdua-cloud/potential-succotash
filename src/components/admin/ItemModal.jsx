@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Plus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -10,15 +10,25 @@ export default function ItemModal({ fields, onSave, onClose }) {
   const [form, setForm] = useState({});
   const [loading, setLoading] = useState(false);
   const [tagInputs, setTagInputs] = useState({});
+  const formRef = useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const el = formRef.current?.querySelector('input:not([type="hidden"]), textarea, select');
+      el?.focus();
+    }, 150);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleChange = (key, value) => {
     setForm(prev => ({ ...prev, [key]: value }));
   };
 
   const addTag = (key) => {
-    const val = (tagInputs[key] || '').trim();
-    if (!val) return;
-    setForm(prev => ({ ...prev, [key]: [...(prev[key] || []), val] }));
+    const raw = tagInputs[key] || '';
+    const items = raw.split(',').map(s => s.trim()).filter(Boolean);
+    if (items.length === 0) return;
+    setForm(prev => ({ ...prev, [key]: [...(prev[key] || []), ...items] }));
     setTagInputs(prev => ({ ...prev, [key]: '' }));
   };
 
@@ -34,6 +44,12 @@ export default function ItemModal({ fields, onSave, onClose }) {
       onClose();
     } catch {
       setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      handleSubmit(e);
     }
   };
 
@@ -57,7 +73,7 @@ export default function ItemModal({ fields, onSave, onClose }) {
 
         <h3 className="text-lg font-bold mb-5">Tambah Baru</h3>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form ref={formRef} onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-4">
           {fields.map((field) => (
             <div key={field.key}>
               <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-1.5">
@@ -81,7 +97,7 @@ export default function ItemModal({ fields, onSave, onClose }) {
                       value={tagInputs[field.key] || ''}
                       onChange={(e) => setTagInputs(prev => ({ ...prev, [field.key]: e.target.value }))}
                       onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(field.key); } }}
-                      placeholder={`Tambah ${field.label.toLowerCase()}`}
+                      placeholder={`Tambah (pisah dengan koma)`}
                       className="flex-1 px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-honda-red/50 transition-all text-sm"
                     />
                     <button type="button" onClick={() => addTag(field.key)}
@@ -130,10 +146,17 @@ export default function ItemModal({ fields, onSave, onClose }) {
                     placeholder="URL Gambar"
                     className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-honda-red/50 transition-all"
                   />
-                  <UploadWidget
-                    onUpload={(url) => handleChange(field.key, url)}
-                    currentUrl={form[field.key] || ''}
-                  />
+                  <div className="flex items-center gap-3">
+                    <UploadWidget
+                      onUpload={(url) => handleChange(field.key, url)}
+                      currentUrl={form[field.key] || ''}
+                    />
+                    {form[field.key] && (
+                      <img src={form[field.key]} alt="preview"
+                        className="w-16 h-12 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                        onError={(e) => { e.target.style.display = 'none'; }} />
+                    )}
+                  </div>
                 </div>
               ) : (
                 <input

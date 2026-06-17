@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Gift, ArrowRight, Sparkles, Trash2, Plus, X } from 'lucide-react';
+import { Clock, Gift, ArrowRight, Sparkles, Trash2, Plus, X, Save } from 'lucide-react';
 import promoData from '../../data/promo.json';
 import useContent from '../../hooks/useContent';
 import useSettings from '../../hooks/useSettings';
 import InlineEditor, { InlineImage } from '../admin/InlineEditor';
-import PromoModal from '../admin/PromoModal';
 import { useAuth } from '../../context/AuthContext';
 import { useCountdown } from '../../hooks/useCountdown';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
@@ -174,9 +173,10 @@ export default function PromoSection() {
                     <UploadWidget onUpload={(url) => update(promo.id, { gambar: url })} currentUrl={promo.gambar} />
                   </div>
                 )}
-                <button className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-white/20 backdrop-blur-sm
-                                   hover:bg-white/30 text-white font-semibold rounded-xl transition-all duration-300
-                                   border border-white/20 text-sm">
+                <button onClick={() => document.getElementById('kredit')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-white/20 backdrop-blur-sm
+                             hover:bg-white/30 text-white font-semibold rounded-xl transition-all duration-300
+                             border border-white/20 text-sm">
                   Klaim Promo <ArrowRight size={16} />
                 </button>
               </div>
@@ -187,12 +187,72 @@ export default function PromoSection() {
 
       <AnimatePresence>
         {showModal && (
-          <PromoModal
-            onSave={(form) => create(form)}
-            onClose={() => setShowModal(false)}
-          />
+          <AddPromoModal onSave={(form) => { create(form); setShowModal(false); }} onClose={() => setShowModal(false)} />
         )}
       </AnimatePresence>
     </section>
+  );
+}
+
+const presetColors = [
+  { label: 'Merah', value: 'bg-gradient-to-br from-honda-red to-orange-600' },
+  { label: 'Biru', value: 'bg-gradient-to-br from-blue-600 to-blue-900' },
+  { label: 'Hijau', value: 'bg-gradient-to-br from-emerald-500 to-teal-700' },
+  { label: 'Ungu', value: 'bg-gradient-to-br from-purple-600 to-indigo-800' },
+  { label: 'Orange', value: 'bg-gradient-to-br from-orange-500 to-red-600' },
+  { label: 'Hitam', value: 'bg-gradient-to-br from-gray-800 to-gray-950' },
+];
+
+function AddPromoModal({ onSave, onClose }) {
+  const [form, setForm] = useState({
+    judul: '', deskripsi: '', diskon: '', kode: '', gambar: '', validUntil: '', warna: presetColors[0].value,
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try { await onSave(form); onClose(); } catch { setLoading(false); }
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+      className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl p-6 premium-shadow max-h-[90vh] overflow-y-auto">
+        <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"><X size={18} /></button>
+        <h3 className="text-lg font-bold mb-5">Tambah Promo Baru</h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input type="text" value={form.judul} onChange={(e) => setForm(p => ({ ...p, judul: e.target.value }))}
+            placeholder="Judul Promo" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl" />
+          <textarea value={form.deskripsi} onChange={(e) => setForm(p => ({ ...p, deskripsi: e.target.value }))}
+            placeholder="Deskripsi" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border rounded-xl" rows={2} />
+          <div className="grid grid-cols-2 gap-3">
+            <input type="text" value={form.diskon} onChange={(e) => setForm(p => ({ ...p, diskon: e.target.value }))}
+              placeholder="Diskon" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border rounded-xl" />
+            <input type="text" value={form.kode} onChange={(e) => setForm(p => ({ ...p, kode: e.target.value }))}
+              placeholder="Kode Promo" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border rounded-xl" />
+          </div>
+          <input type="date" value={form.validUntil} onChange={(e) => setForm(p => ({ ...p, validUntil: e.target.value }))}
+            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border rounded-xl" />
+          <div className="flex flex-wrap gap-2">
+            {presetColors.map((c) => (
+              <button key={c.value} type="button" onClick={() => setForm(p => ({ ...p, warna: c.value }))}
+                className={`w-10 h-10 rounded-xl ${c.value} border-2 ${form.warna === c.value ? 'border-gray-900 scale-110' : 'border-transparent'}`} />
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input type="text" value={form.gambar} onChange={(e) => setForm(p => ({ ...p, gambar: e.target.value }))}
+              placeholder="URL Gambar" className="flex-1 px-4 py-3 bg-gray-50 border rounded-xl" />
+            <UploadWidget onUpload={(url) => setForm(p => ({ ...p, gambar: url }))} currentUrl={form.gambar} />
+          </div>
+          <button type="submit" disabled={loading || !form.judul}
+            className="w-full py-3 bg-honda-red hover:bg-honda-red-dark text-white font-bold rounded-xl disabled:opacity-50">
+            {loading ? <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" /> : <><Save size={18} /> Tambah</>}
+          </button>
+        </form>
+      </motion.div>
+    </motion.div>
   );
 }

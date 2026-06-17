@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { join, dirname } from 'path';
@@ -11,8 +12,10 @@ import { authMiddleware } from './middleware/auth.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const VALID_TABLES = ['mobil', 'promo', 'testimoni', 'berita', 'gallery', 'keunggulan', 'test_drive', 'trade_in'];
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -50,22 +53,58 @@ app.put('/api/settings/:key', authMiddleware, (req, res) => {
 });
 
 app.post('/api/batch-delete/:table', authMiddleware, (req, res) => {
+  const { table } = req.params;
+  if (!VALID_TABLES.includes(table)) return res.status(400).json({ error: 'Invalid table' });
   const { ids } = req.body;
   if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: 'No IDs provided' });
   const placeholders = ids.map(() => '?').join(',');
-  const result = db.prepare(`DELETE FROM ${req.params.table} WHERE id IN (${placeholders})`).run(...ids);
+  const result = db.prepare(`DELETE FROM ${table} WHERE id IN (${placeholders})`).run(...ids);
   res.json({ deleted: result.changes });
 });
 
 app.post('/api/reorder/:table', authMiddleware, (req, res) => {
+  const { table } = req.params;
+  if (!VALID_TABLES.includes(table)) return res.status(400).json({ error: 'Invalid table' });
   const { ids } = req.body;
   if (!Array.isArray(ids)) return res.status(400).json({ error: 'Invalid IDs' });
-  const stmt = db.prepare(`UPDATE ${req.params.table} SET sort_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
+  const stmt = db.prepare(`UPDATE ${table} SET sort_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
   const tx = db.transaction(() => {
     for (let i = 0; i < ids.length; i++) stmt.run(i, ids[i]);
   });
   tx();
   res.json({ ok: true });
+});
+
+app.post('/api/test-drive', (req, res) => {
+  const { nama, nohp, mobil, tanggal, lokasi } = req.body;
+  if (!nama || !nohp || !mobil || !tanggal || !lokasi) {
+    return res.status(400).json({ error: 'Semua field harus diisi' });
+  }
+  const result = db.prepare(
+    'INSERT INTO test_drive (nama, nohp, mobil, tanggal, lokasi) VALUES (?, ?, ?, ?, ?)'
+  ).run(nama, nohp, mobil, tanggal, lokasi);
+  res.status(201).json({ id: result.lastInsertRowid, message: 'Test drive berhasil didaftarkan' });
+});
+
+app.get('/api/test-drive', authMiddleware, (req, res) => {
+  const rows = db.prepare('SELECT * FROM test_drive ORDER BY created_at DESC').all();
+  res.json(rows);
+});
+
+app.post('/api/trade-in', (req, res) => {
+  const { nama, nohp, merek, tahun, kilometer, kondisi, mobil_target } = req.body;
+  if (!nama || !nohp || !merek || !tahun || !kilometer || !kondisi) {
+    return res.status(400).json({ error: 'Semua field harus diisi' });
+  }
+  const result = db.prepare(
+    'INSERT INTO trade_in (nama, nohp, merek, tahun, kilometer, kondisi, mobil_target) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(nama, nohp, merek, tahun, kilometer, kondisi, mobil_target || '');
+  res.status(201).json({ id: result.lastInsertRowid, message: 'Trade-in berhasil didaftarkan' });
+});
+
+app.get('/api/trade-in', authMiddleware, (req, res) => {
+  const rows = db.prepare('SELECT * FROM trade_in ORDER BY created_at DESC').all();
+  res.json(rows);
 });
 
 app.use(express.static(join(__dirname, '..', 'dist')));

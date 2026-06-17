@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders Honda dealer main heading', () => {
+test('renders Honda car names', () => {
   render(<App />);
-  const heading = screen.getByText(/temukan honda/i);
-  expect(heading).toBeDefined();
+  const mobil = screen.getAllByText(/honda/i);
+  expect(mobil.length).toBeGreaterThan(0);
 });

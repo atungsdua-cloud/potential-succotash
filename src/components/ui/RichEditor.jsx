@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import DOMPurify from 'dompurify';
 import { Bold, Italic, Underline, List, ListOrdered, Link, Pilcrow } from 'lucide-react';
 
 export default function RichEditor({ value, onChange, className = '' }) {
@@ -27,7 +28,7 @@ export default function RichEditor({ value, onChange, className = '' }) {
       <div
         className={`cursor-pointer hover:ring-2 hover:ring-honda-red/50 rounded-xl p-3 transition-all ${className}`}
         onClick={() => setIsEditing(true)}
-        dangerouslySetInnerHTML={{ __html: value || '' }}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value || '') }}
       />
     );
   }

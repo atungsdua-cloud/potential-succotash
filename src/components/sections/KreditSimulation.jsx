@@ -174,8 +174,9 @@ export default function KreditSimulation() {
               </div>
             </div>
 
-            <button className="w-full py-3.5 bg-honda-red hover:bg-honda-red-dark text-white font-bold rounded-xl
-                              transition-all duration-300 shadow-lg shadow-honda-red/25">
+            <button onClick={() => document.getElementById('testdrive')?.scrollIntoView({ behavior: 'smooth' })}
+              className="w-full py-3.5 bg-honda-red hover:bg-honda-red-dark text-white font-bold rounded-xl
+                          transition-all duration-300 shadow-lg shadow-honda-red/25">
               {s.kredit_button}
             </button>
           </motion.div>

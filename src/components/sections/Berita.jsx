@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, ArrowRight, Trash2, Plus, X } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import beritaData from '../../data/berita.json';
 import useContent from '../../hooks/useContent';
 import useSettings from '../../hooks/useSettings';
@@ -227,7 +228,7 @@ export default function Berita() {
                 <h3 className="text-xl sm:text-2xl font-bold mb-4">{viewing.judul}</h3>
                 <div
                   className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
-                  dangerouslySetInnerHTML={{ __html: viewing.excerpt || '' }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(viewing.excerpt || '') }}
                 />
               </div>
             </motion.div>
